@@ -6,7 +6,7 @@
 #include <stack>
 
 #include "SECS/EntityManager.h"
-
+#include "SECS/ComponentArray.hpp"
 
 int main()
 {
@@ -15,17 +15,8 @@ int main()
     uint e2 = em.createEntity();
     uint e3 = em.createEntity();
     
-    std::cout << "size: " << em.entities.size() << std::endl;
-    em.deleteEntity(e2);
-    std::cout << "size: " << em.entities.size() << std::endl;
-    
-    const Entity& e4 = em.createEntity();
-    
-    std::cout << "size: " << em.entities.size() << std::endl;
-    std::cout << em[e2].deleted << std::endl;
-    
-    
-    
+    ComponentArray<float> cf;
+    cf.addComponentTo(3.14, e1);
     
     return 0;   
 }

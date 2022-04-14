@@ -12,10 +12,11 @@ uint EntityManager::createEntity()
     uint index;
 
     // if some deleted entities left some place, re-use it
-    if (!free_indexes.empty())
+    if (not free_indexes.empty())
     {
         index = free_indexes.top();         // get a recyclable Entity
-        entities[index].deleted = false;
+        entities[index].deleted = false;    // declare entity as used
+        free_indexes.pop();                 // remove index from stack
     }
     else
     {   
