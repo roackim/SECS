@@ -5,8 +5,20 @@
 #include <string>
 #include <stack>
 
+
+// interface used in ComponentManager
+class IComponentArray
+{
+public:
+    IComponentArray() {}
+    virtual ~IComponentArray() {}   // needs to be virtual so that derived destructor will also be called
+                                    // if not, memory leak happens
+    virtual void deleteComponent(uint id) {}
+};
+
+
 template<class Component>
-class ComponentArray
+class ComponentArray: public IComponentArray
 {
 public:
     // not important
@@ -15,7 +27,7 @@ public:
         std::cout << "Array of \"" << typeid(Component).name() << "\" created" << std::endl;
     }
     
-    void addComponentTo(Component c, uint id)
+    void addComponentToEntity(Component c, uint id)
     {
         // check if entity already has a c component
         if (entityToComponent.count(id) != 0)
@@ -36,18 +48,18 @@ public:
         {
             index = components.size();
             components.push_back(c);
-            
             componentToEntity.push_back(0);
         }
         
-        // indirections
+        // keep indirections coherents
         componentToEntity[index] = id;      // should mirror 'components' vector
         entityToComponent[id] = index;
     }
     
 private:
     std::vector<Component> components;
-    std::stack<uint> free_indexes;                      // used to recycle deleted components
+    std::vector<bool> component_state;      // 1: active, 0: scheduled for recycling
+    std::stack<uint> free_indexes;          // used to lookup inactive components
     
     std::vector<uint>               componentToEntity;
     std::unordered_map<uint, uint>  entityToComponent;  // entity to component map
