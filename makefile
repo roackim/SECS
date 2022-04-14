@@ -13,13 +13,12 @@ CPP_FLAGS ?= -pedantic -Werror -Wall -Wpedantic -Wextra -Wcast-align -Wunused -W
 #				 	^-> warnigns are now errors
 # Removed: -O3 -Wmissing-declarations -pedantic -Wsign-conversion -Wdouble-promotion -Wuseless-cast
 
-# Files
-
 SRCS := $(shell find $(SRC_DIR) -name *.cpp)
 #OBJS_OLD := $(SRCS:%=$(BUILD_DIR)/%.o)
 
 SRCS := $(SRCS:src/%=%)
 OBJS := $(SRCS:.cpp=.o)
+DEPS := $(OBJS:.o=.d)ma
 
 # Commands
 MKDIR_P ?= mkdir -p
@@ -34,11 +33,11 @@ all: $(BIN_DIR)/$(TARGET)
 .PHONY: run
 run: all
 	@echo ------------------
-	@cd $(BIN_DIR) && ./$(TARGET)
+	cd $(BIN_DIR) && ./$(TARGET)
 
 # ====[ LINUX target ]====
 # Compilation
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp makefile 
 	@echo \> Compiling..
 	@$(MKDIR_P) $(dir $@)
 	@$(CXX) $(CPP_FLAGS) -c $< -o $@
@@ -48,6 +47,11 @@ $(BIN_DIR)/$(TARGET): $(OBJS:%=$(BUILD_DIR)/%)
 	@echo \> Linking..
 	@$(MKDIR_P) $(dir $@)
 	@$(CXX) $(OBJS:%=$(BUILD_DIR)/%) -o $@ $(LIB)
+	
+.PHONY: depend
+depend: $(SRCS)
+	@$(RM) -f ./.depend
+	@$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
 
 .PHONY: clean
 clean:
@@ -68,5 +72,4 @@ todo:
 	@cat TODO.txt | grep -F [ ]
 	@echo
 
-# -include $(DEPS)
-
+-include $(DEPS)
