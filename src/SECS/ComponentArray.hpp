@@ -1,6 +1,7 @@
 #pragma once
 
 #include <unordered_map>
+#include <iostream>
 #include <vector>
 #include <string>
 #include <stack>
@@ -36,6 +37,8 @@ public:
             throw std::invalid_argument("Cannot add component <"+componentType+"> to entity #" + std::to_string(id) 
             + " because it already has one");
         }
+        if (id == 0) [[unlikely]]
+            throw std::invalid_argument("Cannot add component to reserved entity #0");
         
         uint index;
         if (not free_indexes.empty())       // check if there are recyclable indexes
@@ -48,7 +51,7 @@ public:
         {
             index = components.size();
             components.push_back(c);
-            componentToEntity.push_back(0);
+            componentToEntity.push_back(0); // make room, assigned right after
         }
         
         // keep indirections coherents
@@ -56,9 +59,53 @@ public:
         entityToComponent[id] = index;
     }
     
-private:
+    Component& getComponent(uint id)
+    {
+        if (id == 0) [[unlikely]] 
+        {
+            throw std::invalid_argument("Entity #0 is reserved and as such has no component");
+        }
+        
+        auto itr = entityToComponent.find(id);
+        if (itr == entityToComponent.end()) [[unlikely]]
+        {
+            throw std::invalid_argument("Entity #" + std::to_string(id) + " has no such component");
+        }
+        
+        return components[itr->second];
+    }
+    
+    void deleteComponent(uint id)
+    {
+        auto itr = entityToComponent.find(id);
+        if (itr == entityToComponent.end()) [[unlikely]]
+            throw std::invalid_argument("Entity #" + std::to_string(id) + " has no such component");
+        
+        if (componentToEntity[itr->second] == 0) [[unlikely]]
+            throw std::invalid_argument("Entity #" + std::to_string(id) + " has no such component");
+        
+        uint index = itr->second;
+        componentToEntity[index] = 0;   // remove the component -> entity relation
+        free_indexes.push(index);       // schedule index for recycling
+        entityToComponent.erase(id);    // remove the entity -> component relation
+        
+    }
+    
+    Component& operator[](uint id)
+    {
+        return getComponent(id);
+    }
+    
+    bool exists(uint id)
+    {
+        auto itr = entityToComponent.find(id);
+        if (itr == entityToComponent.end()) return false;
+        
+        return (componentToEntity[itr->second] != 0);
+    }
+    
+// private:
     std::vector<Component> components;
-    std::vector<bool> component_state;      // 1: active, 0: scheduled for recycling
     std::stack<uint> free_indexes;          // used to lookup inactive components
     
     std::vector<uint>               componentToEntity;

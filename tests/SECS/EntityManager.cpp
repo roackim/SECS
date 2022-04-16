@@ -1,5 +1,4 @@
 #include "SECS/EntityManager.h"
-
 #include "doctest.h"
 
 TEST_CASE("EntityManager Tests") {
@@ -7,6 +6,7 @@ TEST_CASE("EntityManager Tests") {
     
     SUBCASE("Deleting entities")
     {
+        CHECK_THROWS(em.deleteEntity(0));   // entity 0 is reserved
         CHECK_THROWS(em.deleteEntity(11));  // entity doesn't exists at all
         uint e = em.createEntity();         // create one
         CHECK_NOTHROW(em.deleteEntity(e));  // delete it
@@ -15,6 +15,7 @@ TEST_CASE("EntityManager Tests") {
     
     SUBCASE("Accessing entities")
     {
+        CHECK_THROWS(em[0]);            // cannot access entity #0
         CHECK_THROWS(em[123]);          // accessing non existing entity
         
         uint e = em.createEntity();

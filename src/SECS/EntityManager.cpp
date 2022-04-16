@@ -7,6 +7,13 @@
 #include "EntityManager.h"
 #include "Entity.h"
 
+EntityManager::EntityManager()
+{
+    Entity reserved(0);
+    reserved.deleted = true;
+    entities.push_back(reserved);   
+}
+
 uint EntityManager::createEntity()
 {
     uint index;
@@ -54,6 +61,7 @@ const Entity& EntityManager::operator[](uint id)
 // check if entity exists
 bool EntityManager::exists(uint id)
 {
+    if (id == 0) return false; // entity 0 is reserved (used in componentArray)
     if (id < entities.size())
     {
         return !entities[id].deleted;   

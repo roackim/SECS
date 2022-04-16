@@ -11,6 +11,7 @@
 class EntityManager
 {
 public: // methods
+    EntityManager();
     uint createEntity();
     void deleteEntity(uint id);
     const Entity& operator[](uint id);
