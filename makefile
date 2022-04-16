@@ -1,10 +1,15 @@
 
+# +-------------------------+
+# |       MAIN SETUP        |
+# +-------------------------+
 
 # Structure
 TARGET = main
 BIN_DIR = bin
 BUILD_DIR = obj
 SRC_DIR = src
+
+TESTS_DIR = tests
 
 
 # C++ flags and options
@@ -13,16 +18,20 @@ CPP_FLAGS ?= -pedantic -Werror -Wall -Wpedantic -Wextra -Wcast-align -Wunused -W
 #				 	^-> warnigns are now errors
 # Removed: -O3 -Wmissing-declarations -pedantic -Wsign-conversion -Wdouble-promotion -Wuseless-cast
 
-SRCS := $(shell find $(SRC_DIR) -name *.cpp)
-#OBJS_OLD := $(SRCS:%=$(BUILD_DIR)/%.o)
+# Files
 
+SRCS := $(shell find $(SRC_DIR) -name *.cpp)
 SRCS := $(SRCS:src/%=%)
 OBJS := $(SRCS:.cpp=.o)
-DEPS := $(OBJS:.o=.d)ma
+OBJS := $(filter-out main.o, $(OBJS)) # remove main -> used for tests target
 
 # Commands
 MKDIR_P ?= mkdir -p
 CPP_FLAGS ?= $(CPP_FLAGS) -MMD -MP
+
+# +-------------------------+
+# |       ALL TARGET        |
+# +-------------------------+
 
 # Rule for Target executable
 .PHONY: all
@@ -33,31 +42,58 @@ all: $(BIN_DIR)/$(TARGET)
 .PHONY: run
 run: all
 	@echo ------------------
-	cd $(BIN_DIR) && ./$(TARGET)
+	@cd $(BIN_DIR) && ./$(TARGET)
 
 # ====[ LINUX target ]====
 # Compilation
-$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp makefile 
-	@echo \> Compiling..
+$(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
+	@echo \> Compiling sources..
+	@$(MKDIR_P) $(dir $@)
+	@$(CXX) $(CPP_FLAGS) -c $< -o $@
+	
+# Compilation for main.cpp file
+$(BUILD_DIR)/main.o: $(SRC_DIR)/main.cpp
+	@echo \> Compiling main source..
 	@$(MKDIR_P) $(dir $@)
 	@$(CXX) $(CPP_FLAGS) -c $< -o $@
 
 # Linking
-$(BIN_DIR)/$(TARGET): $(OBJS:%=$(BUILD_DIR)/%)
-	@echo \> Linking..
+$(BIN_DIR)/$(TARGET): $(OBJS:%=$(BUILD_DIR)/%) $(BUILD_DIR)/main.o
+	@echo \> Building main..
 	@$(MKDIR_P) $(dir $@)
-	@$(CXX) $(OBJS:%=$(BUILD_DIR)/%) -o $@ $(LIB)
+	$(CXX) $(OBJS:%=$(BUILD_DIR)/%) $(BUILD_DIR)/main.o -o $@ $(LIB)
 	
-.PHONY: depend
-depend: $(SRCS)
-	@$(RM) -f ./.depend
-	@$(CXX) $(CPPFLAGS) -MM $^>>./.depend;
+# +-------------------------+
+# |       UNIT TESTS        |
+# +-------------------------+
+
+.PHONY: test_all
+test_all: $(TESTS_DIR)/$(TARGET)
+	@echo \> Test Build complete
+
+.PHONY: test
+test: test_all 
+	@echo ------------------
+	@cd $(TESTS_DIR) && ./$(TARGET) -ni -nv
+	
+TESTS_SRCS := $(shell find $(TESTS_DIR) -name *.cpp)
+
+$(TESTS_DIR)/$(TARGET): $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_SRCS)
+	@echo \> Building test..
+	@$(MKDIR_P) $(dir $@)
+	@$(CXX) $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_SRCS) -o $@ $(LIB)
+
+
+# +-------------------------+
+# |      OTHER TARGETS      |
+# +-------------------------+
 
 .PHONY: clean
 clean:
-	@$(RM) -r $(BUILD_DIR)
-	@$(RM) -r $(WBUILD_DIR)
-	@$(RM) $(BIN_DIR)/$(TARGET)
+	@$(RM) -rf $(BUILD_DIR)
+	@$(RM) -rf $(WBUILD_DIR)
+	@$(RM) -f $(BIN_DIR)/$(TARGET)
+	@$(RM) -f $(TESTS_DIR)/$(TARGET)
 	@echo \> Cleaning..
 
 .PHONY: valgrind
@@ -69,7 +105,6 @@ valgrind: all
 .PHONY:
 todo:
 	@echo
-	@cat TODO.txt | grep -F [ ]
+	@cat TODO.txt | grep '\[ \]'
 	@echo
 
--include $(DEPS)
