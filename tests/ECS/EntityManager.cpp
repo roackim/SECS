@@ -1,0 +1,42 @@
+#include "SECS/EntityManager.h"
+
+#include "doctest.h"
+
+TEST_CASE("EntityManager Tests") {
+    EntityManager em;
+    
+    SUBCASE("Deleting entities")
+    {
+        CHECK_THROWS(em.deleteEntity(11));  // entity doesn't exists at all
+        uint e = em.createEntity();         // create one
+        CHECK_NOTHROW(em.deleteEntity(e));  // delete it
+        CHECK_THROWS(em.deleteEntity(e));   // it exists but is already labeled as "deleted"
+    }
+    
+    SUBCASE("Accessing entities")
+    {
+        CHECK_THROWS(em[123]);          // accessing non existing entity
+        
+        uint e = em.createEntity();
+        CHECK_NOTHROW(em[e]);           // accessing existing entity
+        CHECK(em[e].id == e);           // check if it return the correct entity
+        
+        em.deleteEntity(e);
+        CHECK_THROWS(em[e]);            // accessing deleted entity
+    }
+    
+    SUBCASE("Recycling entitites")
+    {
+        uint e1 = em.createEntity();    // create entities
+        uint e2 = em.createEntity();
+        
+        CHECK(em.exists(e1) == true);   // exists is true if the entity is allocated, and not flagged "deleted" for recycling
+        CHECK(em.exists(e2) == true);  
+        
+        em.deleteEntity(e1);            // entity will be flagged as "deleted" -> marked for recycling 
+        CHECK(em.exists(e1) == false);
+        
+        uint e3 = em.createEntity();    // will use a recycled entity if possible, here e1
+        CHECK(e1 == e3);
+    }
+}

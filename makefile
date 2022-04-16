@@ -81,7 +81,7 @@ TESTS_SRCS := $(shell find $(TESTS_DIR) -name *.cpp)
 $(TESTS_DIR)/$(TARGET): $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_SRCS)
 	@echo \> Building test..
 	@$(MKDIR_P) $(dir $@)
-	@$(CXX) $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_SRCS) -o $@ $(LIB)
+	@$(CXX) -Itests $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_SRCS) -o $@ $(LIB)
 
 
 # +-------------------------+
@@ -105,6 +105,6 @@ valgrind: all
 .PHONY:
 todo:
 	@echo
-	@cat TODO.txt | grep '\[ \]'
+	@cat TODO.txt | grep -F [ ]
 	@echo
 

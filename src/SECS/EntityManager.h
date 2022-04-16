@@ -15,9 +15,8 @@ public: // methods
     void deleteEntity(uint id);
     const Entity& operator[](uint id);
     bool exists(uint id);
-    void display();
     
-// private: // attributes
+private: // attributes
     std::vector<Entity> entities;
     std::stack<uint> free_indexes;    // keep track of "deleted" entities -> reassign their index
 };
