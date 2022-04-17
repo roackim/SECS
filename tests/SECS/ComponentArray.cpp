@@ -12,7 +12,6 @@ TEST_CASE("ComponentArray Tests")
         CHECK_THROWS(ca.addComponentToEntity('a', 1));   // cannot add 2 of the same component to the same entity
     }
     
-    
     SUBCASE("Accessing components")
     {
         // accessing wrongly
@@ -44,7 +43,8 @@ TEST_CASE("ComponentArray Tests")
         CHECK(ca.exists(1) == false);           // deletion is done
         
         ca.addComponentToEntity('B', 2);        // this component should take the place of the previously deleted one, through recycling
-        CHECK(ca.exists(2) == true);            
+        CHECK(ca.exists(2) == true);
+        CHECK(ca[2] == 'B');
         
         CHECK(&ref1 == &ca[2]);                 // check that recycling took place
     }
