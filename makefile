@@ -8,8 +8,6 @@ TARGET    := main
 BIN_DIR   := bin
 BUILD_DIR := obj
 SRC_DIR   := src
-TESTS_DIR := tests
-
 
 # C++ flags and options
 CXX := g++ -Isrc -std=c++17 -fmax-errors=1# -O0 -g -pthread -lpthread -Wl,--no-as-needed
@@ -69,22 +67,41 @@ include $(wildcard $(DEP_FILES))
 # |       UNIT TESTS        |
 # +-------------------------+
 
+TESTS_DIR := tests
+TESTS_BUILD_DIR := tests_obj
+
+TESTS_SRCS := $(shell find $(TESTS_DIR) -name *.cpp)
+TESTS_SRCS := $(TESTS_SRCS:tests/%=%)
+TESTS_OBJS := $(TESTS_SRCS:.cpp=.o)
+
 .PHONY: test_all
-test_all: $(TESTS_DIR)/$(TARGET)
+test_all: $(TESTS_BUILD_DIR)/$(TARGET)
 	@echo \> Test Build complete
 
 .PHONY: test
 test: test_all 
 	@echo ------------------
-	@cd $(TESTS_DIR) && ./$(TARGET) -ni -nv
+	@cd $(TESTS_BUILD_DIR) && ./$(TARGET) -ni -nv
 	
-TESTS_SRCS := $(shell find $(TESTS_DIR) -name *.cpp)
-
-$(TESTS_DIR)/$(TARGET): $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_SRCS)
-	@echo \> Building test..
+# Compilation
+$(TESTS_BUILD_DIR)/%.o: $(TESTS_DIR)/%.cpp
+	@echo \> Compiling..
 	@$(MKDIR_P) $(dir $@)
-	@$(CXX) -Itests $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_SRCS) -o $@ $(LIB)
+	@$(CXX) $(CPP_FLAGS) -Itests $(CPP_FLAGS) -c $< -o $@  -MMD -MP
 
+$(TESTS_BUILD_DIR)/$(TARGET): $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_OBJS:%=$(TESTS_BUILD_DIR)/%)
+	@echo \> Building test..
+	@echo $(TESTS_SRCS)
+	@echo $(TESTS_OBJS)
+	
+	@$(MKDIR_P) $(dir $@)
+	@$(CXX) $(CPP_FLAGS) -Itests $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_OBJS:%=$(TESTS_BUILD_DIR)/%) -o $@ $(LIB)
+
+
+# Tests Dependencies
+TESTS_DEP_FILES := $(TESTS_SRCS:%.cpp=$(TESTS_BUILD_DIR)/%.d)
+$(TESTS_DEP_FILES):
+include $(wildcard $(TESTS_DEP_FILES))
 
 # +-------------------------+
 # |      OTHER TARGETS      |
@@ -95,7 +112,9 @@ clean:
 	@$(RM) -rf $(BUILD_DIR)
 	@$(RM) -rf $(WBUILD_DIR)
 	@$(RM) -f $(BIN_DIR)/$(TARGET)
-	@$(RM) -f $(TESTS_DIR)/$(TARGET)
+	@$(RM) -rf $(TESTS_BUILD_DIR)
+	@$(RM) -rf $(BIN_DIR)
+	
 	@echo \> Cleaning..
 
 .PHONY: valgrind
