@@ -10,8 +10,8 @@ class ComponentManager
 {
 public:
     template<class Component>
-    void addComponentToEntity(Component c, uint id)     // assumes entity exists
-    {
+    uint addComponentToEntity(Component c, uint id)     // assumes entity exists
+    {                                                   // returns component index (used for signature)
         auto t = std::type_index(typeid(Component));
         if (type_to_index.count(t) == 0)                // if componentArray doesn't exists create it
         {
@@ -23,6 +23,7 @@ public:
         auto* ptr = getComponentArrayPtr<Component>();
         ptr->addComponentToEntity(c, id);
         
+        return type_to_index[t];
     }
     
     template<class Component>
