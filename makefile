@@ -4,30 +4,27 @@
 # +-------------------------+
 
 # Structure
-TARGET = main
-BIN_DIR = bin
-BUILD_DIR = obj
-SRC_DIR = src
-
-TESTS_DIR = tests
+TARGET    := main
+BIN_DIR   := bin
+BUILD_DIR := obj
+SRC_DIR   := src
+TESTS_DIR := tests
 
 
 # C++ flags and options
-CXX=g++ -Isrc -std=c++17 -fmax-errors=1# -O0 -g -pthread -lpthread -Wl,--no-as-needed
-CPP_FLAGS ?= -pedantic -Werror -Wall -Wpedantic -Wextra -Wcast-align -Wunused -Wnull-dereference -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wnon-virtual-dtor -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-null-sentinel -Wswitch-default -Wundef -Wno-unused
+CXX := g++ -Isrc -std=c++17 -fmax-errors=1# -O0 -g -pthread -lpthread -Wl,--no-as-needed
+CPP_FLAGS := -pedantic -Werror -Wall -Wpedantic -Wextra -Wcast-align -Wunused -Wnull-dereference -Wmisleading-indentation -Wduplicated-cond -Wduplicated-branches -Wnon-virtual-dtor -Wcast-qual -Wdisabled-optimization -Wformat=2 -Winit-self -Wlogical-op -Wmissing-include-dirs -Wnoexcept -Woverloaded-virtual -Wredundant-decls -Wshadow -Wsign-promo -Wstrict-null-sentinel -Wswitch-default -Wundef -Wno-unused
 #				 	^-> warnigns are now errors
 # Removed: -O3 -Wmissing-declarations -pedantic -Wsign-conversion -Wdouble-promotion -Wuseless-cast
 
-# Files
-
 SRCS := $(shell find $(SRC_DIR) -name *.cpp)
 SRCS := $(SRCS:src/%=%)
+
 OBJS := $(SRCS:.cpp=.o)
 OBJS := $(filter-out main.o, $(OBJS)) # remove main -> used for tests target
 
-# Commands
 MKDIR_P ?= mkdir -p
-CPP_FLAGS ?= $(CPP_FLAGS) -MMD -MP
+CPP_FLAGS := $(CPP_FLAGS)
 
 # +-------------------------+
 # |       ALL TARGET        |
@@ -47,22 +44,27 @@ run: all
 # ====[ LINUX target ]====
 # Compilation
 $(BUILD_DIR)/%.o: $(SRC_DIR)/%.cpp
-	@echo \> Compiling sources..
+	@echo \> Compiling..
 	@$(MKDIR_P) $(dir $@)
-	@$(CXX) $(CPP_FLAGS) -c $< -o $@
+	@$(CXX) $(CPP_FLAGS) -c $< -o $@  -MMD -MP
 	
 # Compilation for main.cpp file
 $(BUILD_DIR)/main.o: $(SRC_DIR)/main.cpp
-	@echo \> Compiling main source..
+	@echo \> Compiling..
 	@$(MKDIR_P) $(dir $@)
-	@$(CXX) $(CPP_FLAGS) -c $< -o $@
+	@$(CXX) $(CPP_FLAGS) -c $< -o $@  -MMD -MP
 
 # Linking
 $(BIN_DIR)/$(TARGET): $(OBJS:%=$(BUILD_DIR)/%) $(BUILD_DIR)/main.o
 	@echo \> Building main..
 	@$(MKDIR_P) $(dir $@)
-	$(CXX) $(OBJS:%=$(BUILD_DIR)/%) $(BUILD_DIR)/main.o -o $@ $(LIB)
-	
+	@$(CXX) $(OBJS:%=$(BUILD_DIR)/%) $(BUILD_DIR)/main.o -o $@ $(LIB)
+
+# Dependencies
+DEP_FILES := $(SRCS:%.cpp=$(BUILD_DIR)/%.d)
+$(DEP_FILES):
+include $(wildcard $(DEP_FILES))
+
 # +-------------------------+
 # |       UNIT TESTS        |
 # +-------------------------+
