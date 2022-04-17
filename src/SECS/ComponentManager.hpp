@@ -13,7 +13,7 @@ public:
     void addComponentToEntity(Component c, uint id)     // assumes entity exists
     {
         auto t = std::type_index(typeid(Component));
-        if (type_to_index.count(t) == 0) // if componentArray doesn't exists create it
+        if (type_to_index.count(t) == 0)                // if componentArray doesn't exists create it
         {
             uint index = component_arrays.size();
             component_arrays.push_back(new ComponentArray<Component>());
@@ -22,6 +22,7 @@ public:
         
         auto* ptr = getComponentArrayPtr<Component>();
         ptr->addComponentToEntity(c, id);
+        
     }
     
     template<class Component>
@@ -35,7 +36,16 @@ public:
         return static_cast<ComponentArray<Component>*>(component_arrays[i]);
     }
     
-// private:
+    template<class Component>
+    void deleteComponentFromEntity(uint id)
+    {
+        auto* ptr = getComponentArrayPtr<Component>();
+        if (ptr == nullptr) throw std::invalid_argument("No ComponnentArray of this type has been instanced yet.");
+        
+        ptr->deleteComponent(id);
+    }
+    
+private:
     // attributes
     std::vector<IComponentArray*> component_arrays;
     std::unordered_map<std::type_index, uint> type_to_index;
