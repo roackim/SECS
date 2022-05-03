@@ -83,17 +83,15 @@ test: test_all
 	@echo ------------------
 	@cd $(TESTS_BUILD_DIR) && ./$(TARGET) -ni -nv
 	
-# Compilation
+# Compilation to object files
 $(TESTS_BUILD_DIR)/%.o: $(TESTS_DIR)/%.cpp
 	@echo \> Compiling..
 	@$(MKDIR_P) $(dir $@)
 	@$(CXX) $(CPP_FLAGS) -Itests $(CPP_FLAGS) -c $< -o $@  -MMD -MP
 
+# linking
 $(TESTS_BUILD_DIR)/$(TARGET): $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_OBJS:%=$(TESTS_BUILD_DIR)/%)
 	@echo \> Building test..
-	@echo $(TESTS_SRCS)
-	@echo $(TESTS_OBJS)
-	
 	@$(MKDIR_P) $(dir $@)
 	@$(CXX) $(CPP_FLAGS) -Itests $(OBJS:%=$(BUILD_DIR)/%) $(TESTS_OBJS:%=$(TESTS_BUILD_DIR)/%) -o $@ $(LIB)
 
@@ -126,6 +124,6 @@ valgrind: all
 .PHONY:
 todo:
 	@echo
-	@cat TODO.txt | grep -F [ ]
+	@cat TODO.txt | grep -F '[ ]'
 	@echo
 

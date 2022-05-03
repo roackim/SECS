@@ -25,7 +25,7 @@ int main(int argc, char* argv[])
     ComponentManager cm;
     
     cm.addComponentToEntity(3.14, e1);
-    cm.addComponentToEntity<std::string>("yam", e1);
+    cm.addComponentToEntity("yam", e1);
     cm.addComponentToEntity("may", e2);
     cm.addComponentToEntity("may", e3);
     
