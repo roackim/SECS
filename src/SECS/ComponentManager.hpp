@@ -31,7 +31,10 @@ public:
     {
         auto t = std::type_index(typeid(Component));
         
-        if (type_to_index.count(t) == 0) return nullptr; // TODO maybe change this, also avoid double lookup
+        if (type_to_index.count(t) == 0) [[unlikely]]
+        {
+            throw std::invalid_argument("No ComponnentArray of this type has been instanced yet.");
+        }
         uint i = type_to_index[t];
         
         return static_cast<ComponentArray<Component>*>(component_arrays[i]);

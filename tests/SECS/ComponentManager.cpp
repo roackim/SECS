@@ -1,5 +1,5 @@
 #include "SECS/ComponentManager.hpp"
-#include "doctest.h"
+#include "doctest.h" 
 
 
 TEST_CASE("ComponentManager Tests") // most of the cases are handled by ComponentArray
@@ -8,11 +8,12 @@ TEST_CASE("ComponentManager Tests") // most of the cases are handled by Componen
     
     SUBCASE("Adding components: creating Component array")
     {
-        ComponentArray<char>* ptr = cm.getComponentArrayPtr<char>();
-        CHECK(ptr == nullptr);
+        ComponentArray<char>* ptr;
+        CHECK_THROWS(ptr = cm.getComponentArrayPtr<char>());
         
         CHECK_NOTHROW(cm.addComponentToEntity<char>('d', 1));   // will instanciate a ComponnentArray<char>
-        ptr = cm.getComponentArrayPtr<char>();
+        
+        CHECK_NOTHROW(ptr = cm.getComponentArrayPtr<char>());
         CHECK(ptr != nullptr);
     }
     

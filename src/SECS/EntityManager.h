@@ -15,7 +15,14 @@ public: // methods
     uint createEntity();
     void deleteEntity(uint id);
     const Entity& operator[](uint id);
+    Entity& get(uint id);
+    
     bool exists(uint id);
+    
+    void setSignature(uint type, uint id);
+    void resetSignature(uint type, uint id);
+    bool has(uint type, uint id);
+    
     
 private: // attributes
     std::vector<Entity> entities;

@@ -25,7 +25,7 @@ TEST_CASE("ComponentArray Tests")
         ca[3] = '%';                        // [] operator calls getComponent, they are the same
         CHECK(ca[3] == '%');
         
-        CHECK(ca.exists(3) == true);
+        CHECK(ca.exists(3) == true);  
     }
     
     SUBCASE("Deleting components")

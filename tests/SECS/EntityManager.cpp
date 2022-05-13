@@ -40,4 +40,14 @@ TEST_CASE("EntityManager Tests") {
         uint e3 = em.createEntity();    // will use a recycled entity if possible, here e1
         CHECK(e1 == e3);
     }
+    
+    SUBCASE("Entity Signatures")
+    {
+        uint e1 = em.createEntity();
+        
+        em.setSignature(3, e1);
+        CHECK(em.has(3, e1));
+        CHECK_FALSE(em.has(4, e1));
+        
+    }
 }

@@ -7,7 +7,7 @@
 
 struct Entity
 {
-    static const uint max_component = 128;
+    static const uint max_component = 64;
     
 public:
     Entity(uint id_);
