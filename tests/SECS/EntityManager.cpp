@@ -45,7 +45,7 @@ TEST_CASE("EntityManager Tests") {
     {
         uint e1 = em.createEntity();
         
-        em.setSignature(3, e1);
+        em.addComponent(3, e1);
         CHECK(em.has(3, e1));
         CHECK_FALSE(em.has(4, e1));
         

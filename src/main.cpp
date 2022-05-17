@@ -31,5 +31,6 @@ int main(int argc, char* argv[])
     cm.addComponentToEntity("may", e2);
     cm.addComponentToEntity("may", e3);
     
-    return 0;   
+    return 0;
+    
 }

@@ -5,6 +5,7 @@
 #include <vector>
 
 #include "ComponentArray.hpp"
+#include "Entity.h"
 
 class ComponentManager
 {
@@ -16,7 +17,8 @@ public:
         if (type_to_index.count(t) == 0)                // if componentArray doesn't exists create it
         {
             uint index = component_arrays.size();
-            component_arrays.push_back(new ComponentArray<Component>());
+            IComponentArray* ptr = new ComponentArray<Component>();
+            component_arrays.push_back(ptr);
             type_to_index[t] = index;
         }
         
@@ -40,14 +42,24 @@ public:
         return static_cast<ComponentArray<Component>*>(component_arrays[i]);
     }
     
+    IComponentArray* getComponentArrayPtr(uint index) 
+    {
+        if (component_arrays.size() <= index) [[unlikely]]
+        {
+             throw std::invalid_argument("No ComponnentArray of this type has been instanced yet.");
+        }
+        return component_arrays[index];
+    }
+    
     template<class Component>
     void deleteComponentFromEntity(uint id)
     {
         auto* ptr = getComponentArrayPtr<Component>();
-        if (ptr == nullptr) throw std::invalid_argument("No ComponnentArray of this type has been instanced yet.");
+        if (ptr == nullptr) [[unlikely]] throw std::invalid_argument("No ComponnentArray of this type has been instanced yet.");
         
         ptr->deleteComponent(id);
     }
+    
     
 private:
     // attributes

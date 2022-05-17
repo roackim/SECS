@@ -19,8 +19,8 @@ public: // methods
     
     bool exists(uint id);
     
-    void setSignature(uint type, uint id);
-    void resetSignature(uint type, uint id);
+    void addComponent(uint type, uint id);  
+    void deleteComponent(uint type, uint id);
     bool has(uint type, uint id);
     
     

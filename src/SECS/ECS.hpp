@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <iostream>
+#include <bitset>
 
 #include "ComponentManager.hpp"
 #include "EntityManager.h"
@@ -13,17 +14,40 @@ public:
     ComponentManager cm;
     
     uint newEntity() { return em.createEntity(); }
-    void deleteEntity(uint id) { em.deleteEntity(id); }
+    
+    void deleteEntity(uint id) 
+    {
+        const Entity& e = em[id];
+        
+        // delete all components from entity
+        for (uint i=0; i<e.signature.size(); i++)
+        {
+            if (e.signature.test(i) == true)
+            {
+                cm.getComponentArrayPtr(i)->deleteComponent(id);
+            }   
+        }
+        
+        // delete the entity
+        em.deleteEntity(id);
+    }
+    
     bool exists(uint id) { return em.exists(id); }
     
     template<class Component>
     void addComponent(Component c, uint id) 
     { 
-        cm.addComponentToEntity(c, id); 
+        uint type = cm.addComponentToEntity(c, id); // get componentArray index
+        em.addComponent(type, id);
     }
     
     template<class Component>
-    void deleteComponent(Component c, uint id) { cm.deleteComponentFromEntity(c, id); }
+    void deleteComponent(Component c, uint id) 
+    { 
+        cm.deleteComponentFromEntity(c, id);
+        uint type = cm.type_to_index(c);
+        em.deleteComponent(type, id);    
+    }
     
     template<class Component>
     Component& getComponent(uint id) 

@@ -75,12 +75,14 @@ bool EntityManager::exists(uint id)
     return false;
 }
 
-void EntityManager::setSignature(uint type, uint id)
+// only modifies the entity signature
+void EntityManager::addComponent(uint type, uint id)
 {
     get(id).signature.set(type);
 }
 
-void EntityManager::resetSignature(uint type, uint id)
+// only modifies the entity signature
+void EntityManager::deleteComponent(uint type, uint id)
 {
     get(id).signature.reset(type);
 }

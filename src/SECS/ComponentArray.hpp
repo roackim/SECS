@@ -14,7 +14,8 @@ public:
     IComponentArray() {}
     virtual ~IComponentArray() {}   // needs to be virtual so that derived destructor will also be called
                                     // if not, memory leak happens
-    virtual void deleteComponent(uint id) {}
+                                    
+    virtual void deleteComponent(uint id) = 0;
 };
 
 
@@ -75,19 +76,25 @@ public:
         return components[itr->second];
     }
     
-    void deleteComponent(uint id)
+    void deleteComponent(uint id) override
     {
+        
         auto itr = entityToComponent.find(id);
         if (itr == entityToComponent.end()) [[unlikely]]
+        {
             throw std::invalid_argument("Entity #" + std::to_string(id) + " has no such component");
-        
+        }
         if (componentToEntity[itr->second] == 0) [[unlikely]]
+        {
             throw std::invalid_argument("Entity #" + std::to_string(id) + " has no such component");
+        }
         
         uint index = itr->second;
         componentToEntity[index] = 0;   // remove the component -> entity relation
         free_indexes.push(index);       // schedule index for recycling
         entityToComponent.erase(id);    // remove the entity -> component relation
+        
+        std::cout << "DELETING COMPONENT FOR #" << id << std::endl;
         
     }
     
