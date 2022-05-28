@@ -60,6 +60,26 @@ public:
         ptr->deleteComponent(id);
     }
     
+    template<class Component>
+    uint getIndexFromType()
+    {
+        auto t = std::type_index(typeid(Component)); // get value from type
+        
+        if (type_to_index.count(t) == 0) [[unlikely]] // check that it should exists
+        {
+            throw std::invalid_argument("No ComponnentArray of this type has been instanced yet.");
+        }
+        
+        return type_to_index[t];   
+    }
+    
+    ~ComponentManager() // free allocated ComponentArrays
+    {
+        for (IComponentArray* ptr : component_arrays)
+        {
+            delete ptr;   
+        }   
+    }
     
 private:
     // attributes

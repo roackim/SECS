@@ -27,7 +27,6 @@ public:
                 cm.getComponentArrayPtr(i)->deleteComponent(id);
             }   
         }
-        
         // delete the entity
         em.deleteEntity(id);
     }
@@ -38,7 +37,7 @@ public:
     void addComponent(Component c, uint id) 
     { 
         uint type = cm.addComponentToEntity(c, id); // get componentArray index
-        em.addComponent(type, id);
+        em.setComponentSignature(type, id);
     }
     
     template<class Component>
@@ -46,7 +45,7 @@ public:
     { 
         cm.deleteComponentFromEntity(c, id);
         uint type = cm.type_to_index(c);
-        em.deleteComponent(type, id);    
+        em.unsetComponentSignature(type, id);    
     }
     
     template<class Component>
@@ -55,4 +54,22 @@ public:
         ComponentArray<Component>* ptr = cm.getComponentArrayPtr<Component>();
         return ptr->getComponent(id);
     }
+    
+    template<class... Components>
+    std::vector<Entity*> filterEntities()
+    {
+        Signature s;
+        constructSignature<Components...>(s);
+        
+        return em.filter(s);
+    }
+    
+private:
+
+    template<class... Component>
+    void constructSignature(Signature& s)
+    {
+        ((s.set(cm.getIndexFromType<Component>())), ...);
+    }
+
 };

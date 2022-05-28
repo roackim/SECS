@@ -94,7 +94,7 @@ public:
         free_indexes.push(index);       // schedule index for recycling
         entityToComponent.erase(id);    // remove the entity -> component relation
         
-        std::cout << "DELETING COMPONENT FOR #" << id << std::endl;
+        // std::cout << "DELETING COMPONENT FOR #" << id << std::endl;
         
     }
     

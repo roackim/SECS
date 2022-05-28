@@ -4,6 +4,7 @@
 #include <unordered_map>
 #include <vector>
 #include <stack>
+#include <bitset>
 
 // Dependencies
 #include "Entity.h"
@@ -19,9 +20,11 @@ public: // methods
     
     bool exists(uint id);
     
-    void addComponent(uint type, uint id);  
-    void deleteComponent(uint type, uint id);
+    void setComponentSignature(uint type, uint id);  
+    void unsetComponentSignature(uint type, uint id);
     bool has(uint type, uint id);
+    
+    std::vector<uint> filter(Signature s);
     
     
 private: // attributes

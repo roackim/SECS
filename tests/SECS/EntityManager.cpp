@@ -44,10 +44,26 @@ TEST_CASE("EntityManager Tests") {
     SUBCASE("Entity Signatures")
     {
         uint e1 = em.createEntity();
+        em.setComponentSignature(3, e1);
         
-        em.addComponent(3, e1);
         CHECK(em.has(3, e1));
         CHECK_FALSE(em.has(4, e1));
+    }
+    
+    SUBCASE("Filtering Entities")
+    {
+        uint e1 = em.createEntity();
+        uint e2 = em.createEntity();
+        
+        em.setComponentSignature(3, e1);        // register component of index 3
+        em.setComponentSignature(3, e2);        // register component of index 3
+        em.setComponentSignature(4, e2);
+        
+        Signature s1 = em[e1].signature;        // has 3
+        Signature s2 = em[e2].signature;        // has 3 and 4
+        
+        CHECK(em.filter(s1).size() == 2);
+        CHECK(em.filter(s2).size() == 1);
         
     }
 }

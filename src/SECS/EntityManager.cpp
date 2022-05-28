@@ -76,13 +76,13 @@ bool EntityManager::exists(uint id)
 }
 
 // only modifies the entity signature
-void EntityManager::addComponent(uint type, uint id)
+void EntityManager::setComponentSignature(uint type, uint id)
 {
     get(id).signature.set(type);
 }
 
 // only modifies the entity signature
-void EntityManager::deleteComponent(uint type, uint id)
+void EntityManager::unsetComponentSignature(uint type, uint id)
 {
     get(id).signature.reset(type);
 }
@@ -90,4 +90,18 @@ void EntityManager::deleteComponent(uint type, uint id)
 bool EntityManager::has(uint type, uint id)
 {
     return get(id).signature.test(type);   
+}
+
+std::vector<uint> EntityManager::filter(Signature s)
+{
+    std::vector<uint> filtered;
+    
+    for (Entity& e : entities)
+    {
+        if ((e.signature|s) == e.signature) // every component from s are already in e
+        {
+            filtered.push_back(e.id);
+        }
+    }
+    return filtered;
 }

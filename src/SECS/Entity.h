@@ -5,9 +5,10 @@
 #include <bitset>
 #include <cstdint>
 
+typedef std::bitset<64> Signature; // 64 -> maximum number of different components
+
 struct Entity
 {
-    static const uint max_component = 64;
     
 public:
     Entity(uint id_);
@@ -17,5 +18,5 @@ public:
     // attributes
     bool deleted = false;
     uint id;
-    std::bitset<max_component> signature = 0;
+    Signature signature = 0;
 };

@@ -7,8 +7,6 @@ TEST_CASE("ECS class Tests")
     
     SUBCASE("Deleting Entity")
     {
-        std::cout << "_________" << std::endl;
-        
         uint e1 = ecs.newEntity();
         ecs.addComponent<char>('c', e1);
         ecs.addComponent<float>(3.14f, e1);
@@ -27,5 +25,21 @@ TEST_CASE("ECS class Tests")
         
         // entity doesn't exists anymore
         CHECK_THROWS(ecs.em[e1]);
+    }
+    
+    SUBCASE("Filtering Entities")
+    {
+        uint e1 = ecs.newEntity();
+        uint e2 = ecs.newEntity();
+        
+        ecs.addComponent<char>('c', e1);
+        ecs.addComponent<float>(3.14f, e1);
+        ecs.addComponent<float>(3.14f, e2);
+        
+        auto ret1 = ecs.filterEntities<float, char>();
+        auto ret2 = ecs.filterEntities<float>();
+        
+        CHECK(ret1.size() == 1);
+        CHECK(ret2.size() == 2); 
     }
 }
