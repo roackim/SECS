@@ -13,6 +13,8 @@ int main(int argc, char* argv[])
 {
     
     EntityManager em;
+    
+    
     uint e1 = em.createEntity();
     uint e2 = em.createEntity();
     uint e3 = em.createEntity();
@@ -29,6 +31,6 @@ int main(int argc, char* argv[])
     cm.addComponentToEntity("may", e2);
     cm.addComponentToEntity("may", e3);
     
+    return 0;
     
-    return 0;   
 }

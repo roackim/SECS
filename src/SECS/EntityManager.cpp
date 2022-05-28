@@ -58,6 +58,12 @@ const Entity& EntityManager::operator[](uint id)
     else throw std::invalid_argument("entity #" + std::to_string(id) + " doesn't exists");
 }
 
+Entity& EntityManager::get(uint id)
+{
+    if (exists(id)) return entities[id];
+    else throw std::invalid_argument("entity #" + std::to_string(id) + " doesn't exists");
+}
+
 // check if entity exists
 bool EntityManager::exists(uint id)
 {
@@ -67,4 +73,35 @@ bool EntityManager::exists(uint id)
         return !entities[id].deleted;   
     }
     return false;
+}
+
+// only modifies the entity signature
+void EntityManager::setComponentSignature(uint type, uint id)
+{
+    get(id).signature.set(type);
+}
+
+// only modifies the entity signature
+void EntityManager::unsetComponentSignature(uint type, uint id)
+{
+    get(id).signature.reset(type);
+}
+
+bool EntityManager::has(uint type, uint id)
+{
+    return get(id).signature.test(type);   
+}
+
+std::vector<uint> EntityManager::filter(Signature s)
+{
+    std::vector<uint> filtered;
+    
+    for (Entity& e : entities)
+    {
+        if ((e.signature|s) == e.signature) // every component from s are already in e
+        {
+            filtered.push_back(e.id);
+        }
+    }
+    return filtered;
 }
