@@ -3,41 +3,39 @@
 
 TEST_CASE("ECS class Tests")
 {
-    ECS ecs;
-    
     SUBCASE("Deleting Entity")
     {
-        uint e1 = ecs.newEntity();
-        ecs.addComponent<char>('c', e1);
-        ecs.addComponent<float>(3.14f, e1);
+        uint e1 = ecs::entity::create();
+        ecs::component::add<char>('c', e1);
+        ecs::component::add<float>(3.14f, e1);
         
-        auto& c1 = ecs.getComponent<char>(e1);
-        auto& c2 = ecs.getComponent<float>(e1);
+        auto& c1 = ecs::component::get<char>(e1);
+        auto& c2 = ecs::component::get<float>(e1);
         
         CHECK(c1 == 'c');
         CHECK(c2 == 3.14f);
         
-        ecs.deleteEntity(e1);
+        ecs::entity::destroy(e1);
         
         // components do not exists anymore
-        CHECK_THROWS(ecs.getComponent<char>(e1));
-        CHECK_THROWS(ecs.getComponent<float>(e1));
+        CHECK_THROWS(ecs::component::get<char>(e1));
+        CHECK_THROWS(ecs::component::get<float>(e1));
         
         // entity doesn't exists anymore
-        CHECK_THROWS(ecs.em[e1]);
+        CHECK_THROWS(ecs::ecs.em[e1]);
     }
     
     SUBCASE("Filtering Entities")
     {
-        uint e1 = ecs.newEntity();
-        uint e2 = ecs.newEntity();
+        uint e1 = ecs::entity::create();
+        uint e2 = ecs::entity::create();
         
-        ecs.addComponent<char>('c', e1);
-        ecs.addComponent<float>(3.14f, e1);
-        ecs.addComponent<float>(3.14f, e2);
+        ecs::component::add<char>('c', e1);
+        ecs::component::add<float>(3.14f, e1);
+        ecs::component::add<float>(3.14f, e2);
         
-        auto ret1 = ecs.filterEntities<float, char>();
-        auto ret2 = ecs.filterEntities<float>();
+        auto ret1 = ecs::entity::filter<float, char>();
+        auto ret2 = ecs::entity::filter<float>();
         
         CHECK(ret1.size() == 1);
         CHECK(ret2.size() == 2); 
