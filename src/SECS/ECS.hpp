@@ -87,15 +87,3 @@ namespace ecs::system
 {
     
 }
-
-
-
-// namespace pet
-// {
-
-//     void prout()
-//     {
-//         std::cout << "prout" << std::endl;
-//     }
-
-// }
