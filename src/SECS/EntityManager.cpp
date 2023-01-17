@@ -2,6 +2,7 @@
 #include <vector>
 #include <string>
 #include <unordered_map>
+#include <iostream>
 
 // Dependencies
 #include "EntityManager.h"
@@ -67,6 +68,7 @@ Entity& EntityManager::get(uint id)
 // check if entity exists
 bool EntityManager::exists(uint id)
 {
+    
     if (id == 0) return false; // entity 0 is reserved (used in componentArray)
     if (id < entities.size())
     {

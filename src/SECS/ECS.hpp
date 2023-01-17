@@ -1,7 +1,6 @@
 #pragma once
 
 #include <vector>
-#include <iostream>
 #include <bitset>
 
 #include "ComponentManager.hpp"
@@ -14,39 +13,46 @@ namespace ecs
     public:
         EntityManager em;
         ComponentManager cm;
+        static ECS& get_ecs()
+        {
+            static ECS ecs_instance;   
+            return ecs_instance;   
+        }
+    
+    private:
+        ECS() {}
+        ECS(ECS const&);                // Don't Implement.
+        void operator=(ECS const&);     // Don't implement
     };
 
-    ECS ecs;
     
     template<class... Component>
-    void constructSignature(Signature& s)
+    static void constructSignature(Signature& s)
     {
-        ((s.set(ecs.cm.getIndexFromType<Component>())), ...); // je comprend pas pourquoi ça marche ptdr
+        ((s.set(ECS::get_ecs().cm.getIndexFromType<Component>())), ...); // je comprend pas pourquoi ça marche ptdr
         // -> apparement ce serait appelé une "Primary Expression" en c++
     }
 }
 
 namespace ecs::entity
 {
-    uint create() { return ecs.em.createEntity(); }
+    uint create();
     
-    void destroy(uint id) 
+    bool exists(uint id);
+    
+    void destroy(uint id);
+    
+    template<class... Components>
+    bool has(uint id)
     {
-        const Entity& e = ecs.em[id];
+        Signature s;
+        constructSignature<Components...>(s);
         
-        // delete all components from entity
-        for (uint i=0; i<e.signature.size(); i++)
-        {
-            if (e.signature.test(i) == true)
-            {
-                ecs.cm.getComponentArrayPtr(i)->deleteComponent(id);
-            }   
-        }
-        // delete the entity
-        ecs.em.deleteEntity(id);
+        Signature& entity_s = ECS::get_ecs().em.get(id).signature;
+        
+        return ((entity_s|s) == entity_s); 
     }
     
-    bool exists(uint id) { return ecs.em.exists(id); }
     
     template<class... Components>
     std::vector<uint> filter()
@@ -54,31 +60,40 @@ namespace ecs::entity
         Signature s;
         constructSignature<Components...>(s);
         
-        return ecs.em.filter(s);
+        return ECS::get_ecs().em.filter(s);
     }
+    
 }
 
 namespace ecs::component
 {
     template<class Component>
     void add(Component c, uint id) 
-    { 
-        uint type = ecs.cm.addComponentToEntity(c, id); // get componentArray index
-        ecs.em.setComponentSignature(type, id);
+    {
+        uint type = ECS::get_ecs().cm.addComponentToEntity(c, id); // get componentArray index
+        ECS::get_ecs().em.setComponentSignature(type, id);
     }
     
     template<class Component>
-    void remove(Component c, uint id) 
+    void add(uint id)
+    {
+        Component c; // default initialization
+        uint type = ECS::get_ecs().cm.addComponentToEntity(c, id); // get componentArray index
+        ECS::get_ecs().em.setComponentSignature(type, id);
+    }
+    
+    template<class Component>
+    void remove(uint id) 
     { 
-        ecs.cm.deleteComponentFromEntity(c, id);
-        uint type = ecs.cm.type_to_index(c);
-        ecs.em.unsetComponentSignature(type, id);    
+        ECS::get_ecs().cm.deleteComponentFromEntity<Component>(id);
+        uint type = ECS::get_ecs().cm.getIndexFromType<Component>();
+        ECS::get_ecs().em.unsetComponentSignature(type, id);    
     }
     
     template<class Component>
     Component& get(uint id) 
     { 
-        ComponentArray<Component>* ptr = ecs.cm.getComponentArrayPtr<Component>();
+        ComponentArray<Component>* ptr = ECS::get_ecs().cm.getComponentArrayPtr<Component>();
         return ptr->getComponent(id);
     }
 }

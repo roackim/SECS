@@ -55,7 +55,7 @@ public:
     void deleteComponentFromEntity(uint id)
     {
         auto* ptr = getComponentArrayPtr<Component>();
-        if (ptr == nullptr) [[unlikely]] throw std::invalid_argument("No ComponnentArray of this type has been instanced yet.");
+        if (ptr == nullptr) [[unlikely]] throw std::invalid_argument("No ComponnentArray of type has been instanced yet.");
         
         ptr->deleteComponent(id);
     }

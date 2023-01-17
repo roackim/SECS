@@ -3,7 +3,7 @@
 // Includes
 #include <iostream>
 #include <bitset>
-#include <cstdint>
+// #include <cstdint>
 
 typedef std::bitset<64> Signature; // 64 -> maximum number of different components
 

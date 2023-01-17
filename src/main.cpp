@@ -5,32 +5,21 @@
 #include <string>
 #include <stack>
 
-#include "SECS/EntityManager.h"
-#include "SECS/ComponentArray.hpp"
-#include "SECS/ComponentManager.hpp"
+#include "SECS/ECS.hpp"
 
 int main(int argc, char* argv[])
 {
     
-    EntityManager em;
+    uint e1 = ecs::entity::create();
+    uint e2 = ecs::entity::create();
+    uint e3 = ecs::entity::create();
     
+    float f = 3.14;
+    uint i = 404;
     
-    uint e1 = em.createEntity();
-    uint e2 = em.createEntity();
-    uint e3 = em.createEntity();
-    
-    // ComponentArray<float> cf;
-    // ComponentArray<std::string> cs;
-    // cf.addComponentToEntity(3.14, e1);
-    // cs.addComponentToEntity("yam", e1);
-    
-    ComponentManager cm;
-    
-    cm.addComponentToEntity(3.14, e1);
-    cm.addComponentToEntity("yam", e1);
-    cm.addComponentToEntity("may", e2);
-    cm.addComponentToEntity("may", e3);
-    
+    ecs::component::add(f, e1);
+    ecs::component::add(i, e2);    
+        
     return 0;
     
 }
